@@ -24,4 +24,14 @@ class TestLog
 		Yunit.Assert(Log.window['Clear'],'window doesnt have clear button')
 		; Yunit.Assert(Log.HasOwnProp('sb'),'window doesnt have status bar')
 	}
+
+class Methods
+{
+	show_method()
+	{
+		static WS_VISIBLE := 0x10000000
+
+		Yunit.Assert(WinGetStyle(Log.window) & WS_VISIBLE, 'the window is not visible')
+	}
+}
 }
