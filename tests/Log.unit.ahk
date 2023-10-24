@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -89,6 +89,79 @@ class Methods
 		line_count := StrSplit(FileRead(sFile), '`n').Length
 		FileDelete sFile
 		Yunit.Assert(line_count = 4, 'unexpected file length')
+	}
+}
+
+class DebuggingModes
+{
+	; begin()
+	; {
+
+	; }
+
+	end()
+	{
+		Log.Clear()
+		Log.Hide()
+	}
+
+	debugging_none()
+	{
+		static lv := Log.window['LogView']
+
+		Log.MODE := DEBUG_OFF
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 0, 'unexpected number of lines')
+	}
+
+	debugging_info_and_pass()
+	{
+		static lv := Log.window['LogView']
+
+		Log.MODE := DEBUG_INFO
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 2, 'unexpected number of lines')
+
+		expected := 'Info`nPass'
+		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+
+	}
+
+	debugging_warnings()
+	{
+		static lv := Log.window['LogView']
+
+		Log.MODE := DEBUG_WARNINGS
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 1, 'unexpected number of lines')
+
+		expected := 'Warning'
+		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+	}
+
+	debugging_errors()
+	{
+		static lv := Log.window['LogView']
+
+		Log.MODE := DEBUG_ERRORS
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 1, 'unexpected number of lines')
+
+		expected := 'Failure'
+		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+
+	}
+
+	debugging_all()
+	{
+		static lv := Log.window['LogView']
+
+		Log.MODE := DEBUG_ALL
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 4, 'unexpected number of lines')
+
+		expected := 'Info`nPass`nWarning`nFailure'
+		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
 	}
 }
 }
