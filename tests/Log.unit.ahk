@@ -9,4 +9,10 @@ Yunit.Use(YunitWindow).Test(TestLog)
 
 class TestLog
 {
+	class_is_properly_setup()
+	{
+		Yunit.Assert(Log.HasOwnProp('MODE'),'class doesnt have mode variable')
+		Yunit.Assert(Log.HasOwnProp('window'),'class doesnt have window variable')
+	}
+
 }
