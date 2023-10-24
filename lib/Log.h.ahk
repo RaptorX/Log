@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 ;; /LOGGER MODE/
 DEBUG_OFF      := 0
@@ -6,3 +6,9 @@ DEBUG_INFO     := 1
 DEBUG_WARNINGS := 2
 DEBUG_ERRORS   := 4
 DEBUG_ALL      := DEBUG_INFO | DEBUG_WARNINGS | DEBUG_ERRORS
+
+;; /MESSAGE TYPE/
+STATUS_PASS := 1
+STATUS_FAIL := 2
+STATUS_WARN := 3
+STATUS_INFO := 4

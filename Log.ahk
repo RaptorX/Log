@@ -27,6 +27,32 @@ class Log
 		Log.window.AddButton('vClear x+m w75', 'Clear logs').OnEvent('Click', (*) => Log.Clear())
 
 	}
+
+	static Add(message, icon?) {
+		static lv := Log.window['LogView']
+
+		if Log.MODE = DEBUG_OFF
+			return
+
+		switch icon
+		{
+		case STATUS_INFO,STATUS_PASS:
+			if Log.MODE & DEBUG_INFO = 0
+				return
+		case STATUS_WARN:
+			if Log.MODE & DEBUG_WARNINGS = 0
+				return
+		case STATUS_FAIL:
+			if Log.MODE & DEBUG_ERRORS = 0
+				return
+		}
+
+		row := lv.Add('Icon' (icon??''), lv.GetCount() + 1, message)
+		lv.Modify(row, 'Vis'), lv.ModifyCol(1)
+
+		OutputDebug message (!InStr(message, '`n') ? '`n' : '')
+	}
+
 	static Show(opts := 'x' A_ScreenWidth - 535 ' NoActivate') => Log.window.Show(opts)
 	static Clear() => Log.window['LogView'].Delete()
 	static Hide() => Log.window.Hide()

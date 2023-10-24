@@ -53,6 +53,16 @@ class Methods
 		Log.Hide()
 		Yunit.Assert(WinGetStyle(Log.window) & ~WS_VISIBLE, 'the window is still visible')
 	}
+
+	add_method()
+	{
+		static lv := Log.window['LogView']
+
+		Log.Add('this is a test', STATUS_PASS)
+		Yunit.Assert(lv.GetCount() = 1, 'more items than expected')
+		Yunit.Assert(lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
+	}
+
 	clear_method()
 	{
 		static lv := Log.window['LogView']
