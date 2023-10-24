@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -70,4 +70,12 @@ class Log
 		return fPath
 	}
 
+	static Test() {
+		Log.Clear()
+		Log.Add('Info', STATUS_INFO)
+		Log.Add('Pass', STATUS_PASS)
+		Log.Add('Warning', STATUS_WARN)
+		Log.Add('Failure', STATUS_FAIL)
+		Log.Show()
+	}
 }

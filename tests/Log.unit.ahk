@@ -63,6 +63,13 @@ class Methods
 		Yunit.Assert(lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
 	}
 
+	test_method()
+	{
+		static lv := Log.window['LogView']
+		Log.Test()
+		Yunit.Assert(lv.GetCount() = 4, 'no items were added')
+	}
+
 	clear_method()
 	{
 		static lv := Log.window['LogView']
