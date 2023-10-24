@@ -56,4 +56,18 @@ class Log
 	static Show(opts := 'x' A_ScreenWidth - 535 ' NoActivate') => Log.window.Show(opts)
 	static Clear() => Log.window['LogView'].Delete()
 	static Hide() => Log.window.Hide()
+
+	static Save(fPath?) {
+		lv := Log.window['LogView']
+		if !fPath := fPath ?? FileSelect('S24')
+			return MsgBox('No file selected', 'Error', 'IconX')
+
+		hFile := FileOpen(fPath, 'w-')
+
+		hFile.Write(ListViewGetContent('', lv))
+		hFile.Close()
+
+		return fPath
+	}
+
 }

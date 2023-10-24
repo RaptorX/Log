@@ -72,5 +72,16 @@ class Methods
 		Log.Clear()
 		Yunit.Assert(lv.GetCount() = 0, 'items were not cleared')
 	}
+
+	save_method()
+	{
+		Log.Test()
+		sFile := Log.Save('saved.log')
+		Yunit.Assert(FileExist(sFile), 'file was not saved')
+
+		line_count := StrSplit(FileRead(sFile), '`n').Length
+		FileDelete sFile
+		Yunit.Assert(line_count = 4, 'unexpected file length')
+	}
 }
 }
