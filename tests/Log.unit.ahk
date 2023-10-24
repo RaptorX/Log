@@ -45,6 +45,14 @@ class Methods
 
 		Yunit.Assert(WinGetStyle(Log.window) & WS_VISIBLE, 'the window is not visible')
 	}
+
+	hide_method()
+	{
+		static WS_VISIBLE := 0x10000000
+
+		Log.Hide()
+		Yunit.Assert(WinGetStyle(Log.window) & ~WS_VISIBLE, 'the window is still visible')
+	}
 	clear_method()
 	{
 		static lv := Log.window['LogView']
