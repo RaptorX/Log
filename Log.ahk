@@ -28,4 +28,5 @@ class Log
 
 	}
 	static Show(opts := 'x' A_ScreenWidth - 535 ' NoActivate') => Log.window.Show(opts)
+	static Clear() => Log.window['LogView'].Delete()
 }

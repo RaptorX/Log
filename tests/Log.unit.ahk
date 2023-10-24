@@ -27,11 +27,32 @@ class TestLog
 
 class Methods
 {
+	begin()
+	{
+		Log.MODE := DEBUG_ALL
+		Log.Show()
+	}
+
+	end()
+	{
+		Log.Clear()
+		Log.Hide()
+	}
+
 	show_method()
 	{
 		static WS_VISIBLE := 0x10000000
 
 		Yunit.Assert(WinGetStyle(Log.window) & WS_VISIBLE, 'the window is not visible')
+	}
+	clear_method()
+	{
+		static lv := Log.window['LogView']
+
+		Log.Test()
+		Yunit.Assert(lv.GetCount() > 0, 'no items were added')
+		Log.Clear()
+		Yunit.Assert(lv.GetCount() = 0, 'items were not cleared')
 	}
 }
 }
