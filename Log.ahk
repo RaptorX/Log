@@ -1,10 +1,13 @@
-﻿#Requires Autohotkey v2.0+
+#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
+
+;; /todo: allow setting headers for listview/
+;; /todo: allow tab delimited info/
 class Log
 {
-	static MODE := DEBUG_OFF
+	static MODE := DEBUG_ALL
 	static window := Gui('+AlwaysOnTop +ToolWindow', 'Log')
 
 	static __New() {
