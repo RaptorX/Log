@@ -1,4 +1,4 @@
-﻿#Requires Autohotkey v2.0+
+#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -47,7 +47,9 @@ class Log
 
 	}
 
-	static Add(icon, messages*) {
+	__New(icon?, messages*) => Log.Add(icon, messages*)
+
+	static Add(icon?, messages*) {
 		if Log.MODE = DEBUG_OFF
 			return
 

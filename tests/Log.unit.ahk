@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -96,8 +96,12 @@ class Methods
 	add_method()
 	{
 		Log.Add(DEBUG_ICON_PASS, 'this is a test')
-		Yunit.Assert(Log.lv.GetCount() = 1, 'more items than expected')
+		Yunit.Assert(Log.lv.GetCount() = 1, 'unexpected number of rows')
 		Yunit.Assert(Log.lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
+
+		Log DEBUG_ICON_FAIL, 'this is another test'
+		Yunit.Assert(Log.lv.GetCount() = 2, 'unexpected number of rows')
+		Yunit.Assert(Log.lv.GetText(2, 2) == 'this is another test', 'row does not contain the expected value')
 	}
 
 	test_method()
