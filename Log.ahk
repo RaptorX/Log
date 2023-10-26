@@ -52,7 +52,7 @@ class Log
 		row := Log.lv.Add('Icon' (icon??''), Log.lv.GetCount() + 1, message)
 		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
 
-		OutputDebug message (!InStr(message, '`n') ? '`n' : '')
+		OutputDebug message
 	}
 
 	static Show(opts?)
