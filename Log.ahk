@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -56,7 +56,12 @@ class Log
 		OutputDebug message (!InStr(message, '`n') ? '`n' : '')
 	}
 
-	static Show(opts := 'x' A_ScreenWidth - 535 ' NoActivate') => Log.window.Show(opts)
+	static Show(opts?)
+	{
+		xLoc := 500 + log.window.MarginX*2 + 15
+		opts := opts ?? 'x' A_ScreenWidth-xLoc ' NoActivate'
+		Log.window.Show(opts)
+	}
 	static Clear() => Log.window['LogView'].Delete()
 	static Hide() => Log.window.Hide()
 
