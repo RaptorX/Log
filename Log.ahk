@@ -1,4 +1,4 @@
-﻿#Requires Autohotkey v2.0+
+#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -10,6 +10,24 @@ class Log
 	static MODE := DEBUG_ALL
 	static window := Gui('+AlwaysOnTop +ToolWindow', 'Log')
 	static lv := ''
+	static headers {
+		get {
+			hdrs := []
+			loop Log.lv.GetCount('col')
+				hdrs.Push(Log.lv.GetText(0, A_Index))
+
+			return hdrs
+		}
+
+		set {
+			loop Log.lv.GetCount('col')
+				Log.lv.DeleteCol(1)
+
+			Value.InsertAt(1, 'id')
+			for header in Value
+				Log.lv.InsertCol(A_Index+1, '', header)
+		}
+	}
 
 	static __New() {
 		if VerCompare(A_OSVersion, '10.0.22621') = -1

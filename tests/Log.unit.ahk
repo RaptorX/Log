@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -34,6 +34,25 @@ class TestLog
 		for ctrl,errMsg in ctrls
 			Yunit.Assert(Log.window[ctrl], errMsg)
 		; Yunit.Assert(Log.HasOwnProp('sb'),'window doesnt have status bar')
+	}
+
+	listview_allows_custom_headers()
+	{
+		Log.headers := ['Function', 'Action', 'Expected', 'Result']
+		Yunit.Assert(Log.lv.GetCount('col') = 5, 'incorrect number of headers')
+		hdrs := ''
+		for header in  log.headers
+			hdrs .= header ','
+
+		Yunit.Assert(Trim(hdrs, ',') == 'id,Function,Action,Expected,Result', 'incorrect headers')
+
+		Log.headers := ['Log']
+		Yunit.Assert(Log.lv.GetCount('col') = 2, 'incorrect number of headers')
+		hdrs := ''
+		for header in  log.headers
+			hdrs .= header ','
+
+		Yunit.Assert(Trim(hdrs, ',') == 'id,Log', 'incorrect headers')
 	}
 
 class Methods
