@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -55,6 +55,15 @@ class TestLog
 		Yunit.Assert(Trim(hdrs, ',') == 'id,Log', 'incorrect headers')
 	}
 
+	listview_allows_adding_multiple_data_columns()
+	{
+		Log.headers := ['Function', 'Action', 'Expected', 'Result']
+		Log.Add(DEBUG_ICON_FAIL, 'test function', 'create expectation', 'something good', 'something bad')
+		data := ListViewGetContent('', Log.lv)
+		res := data == '1`ttest function`tcreate expectation`tsomething good`tsomething bad'
+		Yunit.Assert(res, 'expected fields were not found')
+	}
+
 class Methods
 {
 	begin()
@@ -86,7 +95,7 @@ class Methods
 
 	add_method()
 	{
-		Log.Add('this is a test', STATUS_PASS)
+		Log.Add(DEBUG_ICON_PASS, 'this is a test')
 		Yunit.Assert(Log.lv.GetCount() = 1, 'more items than expected')
 		Yunit.Assert(Log.lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
 	}
@@ -119,11 +128,6 @@ class Methods
 
 class DebuggingModes
 {
-	; begin()
-	; {
-
-	; }
-
 	end()
 	{
 		Log.Clear()
@@ -145,7 +149,6 @@ class DebuggingModes
 
 		expected := 'Info`nPass'
 		Yunit.Assert(ListViewGetContent('col2', Log.lv) == expected, 'the expected text was not found')
-
 	}
 
 	debugging_warnings()

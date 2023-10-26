@@ -2,9 +2,6 @@
 
 #Include .\lib\Log.h.ahk
 
-
-;; /todo: allow setting headers for listview/
-;; /todo: allow tab delimited info/
 class Log
 {
 	static MODE := DEBUG_ALL
@@ -50,27 +47,40 @@ class Log
 
 	}
 
-	static Add(message, icon?) {
+	static Add(icon, messages*) {
 		if Log.MODE = DEBUG_OFF
 			return
 
+		; icon must be one of the valid icons
+		if Type(icon) != 'Integer'
+		|| icon & (DEBUG_ICON_FAIL | DEBUG_ICON_INFO | DEBUG_ICON_PASS | DEBUG_ICON_WARN) = 0
+			throw ValueError('Expected an Icon Number but got a ' Type(icon), A_ThisFunc, 'icon')
+
+		; message must be an array
+		if Type(messages) != 'Array'
+			throw ValueError('Expected an Array but got a ' Type(messages), A_ThisFunc, 'messages*')
+
 		switch icon
 		{
-		case STATUS_INFO,STATUS_PASS:
+		case DEBUG_ICON_INFO,DEBUG_ICON_PASS:
 			if Log.MODE & DEBUG_INFO = 0
 				return
-		case STATUS_WARN:
+		case DEBUG_ICON_WARN:
 			if Log.MODE & DEBUG_WARNINGS = 0
 				return
-		case STATUS_FAIL:
+		case DEBUG_ICON_FAIL:
 			if Log.MODE & DEBUG_ERRORS = 0
 				return
 		}
 
-		row := Log.lv.Add('Icon' (icon??''), Log.lv.GetCount() + 1, message)
+		row := Log.lv.Add('Icon' icon, Log.lv.GetCount() + 1, messages*)
 		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
 
-		OutputDebug message
+		message := ''
+		for msg in messages
+			message .= msg '`t'
+
+		OutputDebug Trim(message)
 	}
 
 	static Show(opts?)
@@ -95,11 +105,13 @@ class Log
 	}
 
 	static Test() {
+		if Log.headers.Length != 2
+			Log.headers := ['Log']
 		Log.Clear()
-		Log.Add('Info', STATUS_INFO)
-		Log.Add('Pass', STATUS_PASS)
-		Log.Add('Warning', STATUS_WARN)
-		Log.Add('Failure', STATUS_FAIL)
+		Log.Add(DEBUG_ICON_INFO, 'Info')
+		Log.Add(DEBUG_ICON_PASS, 'Pass')
+		Log.Add(DEBUG_ICON_WARN, 'Warning')
+		Log.Add(DEBUG_ICON_FAIL, 'Failure')
 		Log.Show()
 	}
 }
