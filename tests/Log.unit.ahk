@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -66,14 +66,11 @@ class TestLog
 
 class Methods
 {
-	begin()
-	{
-		Log.MODE := DEBUG_ALL
-		Log.Show()
-	}
+	begin() => Log.MODE := DEBUG_ALL
 
 	end()
 	{
+		Log.headers := ['Log']
 		Log.Clear()
 		Log.Hide()
 	}
@@ -82,6 +79,7 @@ class Methods
 	{
 		static WS_VISIBLE := 0x10000000
 
+		Log.Show()
 		Yunit.Assert(WinGetStyle(Log.window) & WS_VISIBLE, 'the window is not visible')
 	}
 
@@ -89,6 +87,7 @@ class Methods
 	{
 		static WS_VISIBLE := 0x10000000
 
+		Log.Show()
 		Log.Hide()
 		Yunit.Assert(WinGetStyle(Log.window) & ~WS_VISIBLE, 'the window is still visible')
 	}
@@ -106,13 +105,13 @@ class Methods
 
 	test_method()
 	{
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 4, 'no items were added')
 	}
 
 	clear_method()
 	{
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() > 0, 'no items were added')
 		Log.Clear()
 		Yunit.Assert(Log.lv.GetCount() = 0, 'items were not cleared')
@@ -120,7 +119,7 @@ class Methods
 
 	save_method()
 	{
-		Log.Test()
+		Log.Test(false)
 		sFile := Log.Save('saved.log')
 		Yunit.Assert(FileExist(sFile), 'file was not saved')
 
@@ -182,14 +181,14 @@ class DebuggingModes
 	debugging_none()
 	{
 		Log.MODE := DEBUG_OFF
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 0, 'unexpected number of lines')
 	}
 
 	debugging_info_and_pass()
 	{
 		Log.MODE := DEBUG_INFO
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 2, 'unexpected number of lines')
 
 		expected := 'Info`nPass'
@@ -199,7 +198,7 @@ class DebuggingModes
 	debugging_warnings()
 	{
 		Log.MODE := DEBUG_WARNINGS
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 1, 'unexpected number of lines')
 
 		expected := 'Warning'
@@ -209,7 +208,7 @@ class DebuggingModes
 	debugging_errors()
 	{
 		Log.MODE := DEBUG_ERRORS
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 1, 'unexpected number of lines')
 
 		expected := 'Failure'
@@ -220,7 +219,7 @@ class DebuggingModes
 	debugging_all()
 	{
 		Log.MODE := DEBUG_ALL
-		Log.Test()
+		Log.Test(false)
 		Yunit.Assert(Log.lv.GetCount() = 4, 'unexpected number of lines')
 
 		expected := 'Info`nPass`nWarning`nFailure'

@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -114,7 +114,7 @@ class Log
 		return fPath
 	}
 
-	static Test() {
+	static Test(visible := true) {
 		if Log.headers.Length != 2
 			Log.headers := ['Log']
 		Log.Clear()
@@ -122,6 +122,8 @@ class Log
 		Log.Add(DEBUG_ICON_PASS, 'Pass')
 		Log.Add(DEBUG_ICON_WARN, 'Warning')
 		Log.Add(DEBUG_ICON_FAIL, 'Failure')
-		Log.Show()
+
+		if visible
+			Log.Show()
 	}
 }
