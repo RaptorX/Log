@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 
 #Include <v2\Yunit\Yunit>
 #Include <v2\Yunit\Window>
@@ -14,6 +14,7 @@ class TestLog
 		static props := Map(
 			'MODE', 'class doesnt have mode variable',
 			'window', 'class doesnt have window variable',
+			'lv', 'class doesnt have the list view control variable'
 		)
 
 		for prop,errMsg in props
@@ -66,28 +67,23 @@ class Methods
 
 	add_method()
 	{
-		static lv := Log.window['LogView']
-
 		Log.Add('this is a test', STATUS_PASS)
-		Yunit.Assert(lv.GetCount() = 1, 'more items than expected')
-		Yunit.Assert(lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
+		Yunit.Assert(Log.lv.GetCount() = 1, 'more items than expected')
+		Yunit.Assert(Log.lv.GetText(1, 2) == 'this is a test', 'row does not contain the expected value')
 	}
 
 	test_method()
 	{
-		static lv := Log.window['LogView']
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 4, 'no items were added')
+		Yunit.Assert(Log.lv.GetCount() = 4, 'no items were added')
 	}
 
 	clear_method()
 	{
-		static lv := Log.window['LogView']
-
 		Log.Test()
-		Yunit.Assert(lv.GetCount() > 0, 'no items were added')
+		Yunit.Assert(Log.lv.GetCount() > 0, 'no items were added')
 		Log.Clear()
-		Yunit.Assert(lv.GetCount() = 0, 'items were not cleared')
+		Yunit.Assert(Log.lv.GetCount() = 0, 'items were not cleared')
 	}
 
 	save_method()
@@ -117,61 +113,51 @@ class DebuggingModes
 
 	debugging_none()
 	{
-		static lv := Log.window['LogView']
-
 		Log.MODE := DEBUG_OFF
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 0, 'unexpected number of lines')
+		Yunit.Assert(Log.lv.GetCount() = 0, 'unexpected number of lines')
 	}
 
 	debugging_info_and_pass()
 	{
-		static lv := Log.window['LogView']
-
 		Log.MODE := DEBUG_INFO
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 2, 'unexpected number of lines')
+		Yunit.Assert(Log.lv.GetCount() = 2, 'unexpected number of lines')
 
 		expected := 'Info`nPass'
-		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+		Yunit.Assert(ListViewGetContent('col2', Log.lv) == expected, 'the expected text was not found')
 
 	}
 
 	debugging_warnings()
 	{
-		static lv := Log.window['LogView']
-
 		Log.MODE := DEBUG_WARNINGS
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 1, 'unexpected number of lines')
+		Yunit.Assert(Log.lv.GetCount() = 1, 'unexpected number of lines')
 
 		expected := 'Warning'
-		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+		Yunit.Assert(ListViewGetContent('col2', Log.lv) == expected, 'the expected text was not found')
 	}
 
 	debugging_errors()
 	{
-		static lv := Log.window['LogView']
-
 		Log.MODE := DEBUG_ERRORS
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 1, 'unexpected number of lines')
+		Yunit.Assert(Log.lv.GetCount() = 1, 'unexpected number of lines')
 
 		expected := 'Failure'
-		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+		Yunit.Assert(ListViewGetContent('col2', Log.lv) == expected, 'the expected text was not found')
 
 	}
 
 	debugging_all()
 	{
-		static lv := Log.window['LogView']
-
 		Log.MODE := DEBUG_ALL
 		Log.Test()
-		Yunit.Assert(lv.GetCount() = 4, 'unexpected number of lines')
+		Yunit.Assert(Log.lv.GetCount() = 4, 'unexpected number of lines')
 
 		expected := 'Info`nPass`nWarning`nFailure'
-		Yunit.Assert(ListViewGetContent('col2', lv) == expected, 'the expected text was not found')
+		Yunit.Assert(ListViewGetContent('col2', Log.lv) == expected, 'the expected text was not found')
 	}
 }
 }

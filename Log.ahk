@@ -9,6 +9,7 @@ class Log
 {
 	static MODE := DEBUG_ALL
 	static window := Gui('+AlwaysOnTop +ToolWindow', 'Log')
+	static lv := ''
 
 	static __New() {
 		if VerCompare(A_OSVersion, '10.0.22621') = -1
@@ -22,8 +23,8 @@ class Log
 		for icon in icons
 			IL_Add(il, 'shell32.dll', icon)
 
-		Log.window.AddListView('vLogView xm w500 h600', ['id','Log'])
-		Log.window['LogView'].SetImageList(il)
+		Log.lv := Log.window.AddListView('vLogView xm w500 h600', ['id','Log'])
+		Log.lv.SetImageList(il)
 
 		xLoc := 75*2 + log.window.MarginX
 		Log.window.AddButton('vSave x+-' xLoc ' y+m w75', 'Save Logs').OnEvent('Click', (*) => Log.Save())
@@ -32,8 +33,6 @@ class Log
 	}
 
 	static Add(message, icon?) {
-		static lv := Log.window['LogView']
-
 		if Log.MODE = DEBUG_OFF
 			return
 
@@ -50,8 +49,8 @@ class Log
 				return
 		}
 
-		row := lv.Add('Icon' (icon??''), lv.GetCount() + 1, message)
-		lv.Modify(row, 'Vis'), lv.ModifyCol(1)
+		row := Log.lv.Add('Icon' (icon??''), Log.lv.GetCount() + 1, message)
+		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
 
 		OutputDebug message (!InStr(message, '`n') ? '`n' : '')
 	}
@@ -62,17 +61,16 @@ class Log
 		opts := opts ?? 'x' A_ScreenWidth-xLoc ' NoActivate'
 		Log.window.Show(opts)
 	}
-	static Clear() => Log.window['LogView'].Delete()
+	static Clear() => Log.lv.Delete()
 	static Hide() => Log.window.Hide()
 
 	static Save(fPath?) {
-		lv := Log.window['LogView']
 		if !fPath := fPath ?? FileSelect('S24')
 			return MsgBox('No file selected', 'Error', 'IconX')
 
 		hFile := FileOpen(fPath, 'w-')
 
-		hFile.Write(ListViewGetContent('', lv))
+		hFile.Write(ListViewGetContent('', Log.lv))
 		hFile.Close()
 
 		return fPath
