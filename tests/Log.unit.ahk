@@ -130,6 +130,47 @@ class Methods
 	}
 }
 
+class ErrorHandling
+{
+	begin() => Log.MODE := DEBUG_ALL
+
+	end()
+	{
+		Log.headers := ['Log']
+		Log.Clear()
+		Log.Hide()
+	}
+
+	add_method_icon()
+	{
+
+		values := ['string', 5]
+
+		for invalid in values
+		{
+			try Log.Add(invalid, 'number' A_Index)
+			catch error as e
+				Yunit.Assert(e.Message ~= 'Expected an Icon Number', 'error was not handled')
+		}
+	}
+
+	add_method_messages()
+	{
+		values := Map(
+			['too', 'few'], ['message1'],
+			['too', 'many'], ['message1','message2','message3']
+		)
+
+		for hdrs,invalid in values
+		{
+			Log.headers := hdrs
+			try Log.Add(DEBUG_ICON_FAIL, invalid*)
+			catch Error as e
+				Yunit.Assert(e.Message ~= 'Expected \d+ fields but got', 'error was not handled')
+		}
+	}
+}
+
 class DebuggingModes
 {
 	end()

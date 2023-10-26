@@ -53,14 +53,18 @@ class Log
 		if Log.MODE = DEBUG_OFF
 			return
 
+		icon := icon ?? DEBUG_ICON_INFO
 		; icon must be one of the valid icons
 		if Type(icon) != 'Integer'
-		|| icon & (DEBUG_ICON_FAIL | DEBUG_ICON_INFO | DEBUG_ICON_PASS | DEBUG_ICON_WARN) = 0
+		|| icon ~= '(' DEBUG_ICON_FAIL '|' DEBUG_ICON_INFO '|' DEBUG_ICON_PASS '|' DEBUG_ICON_WARN ')' = 0
 			throw ValueError('Expected an Icon Number but got a ' Type(icon), A_ThisFunc, 'icon')
 
 		; message must be an array
 		if Type(messages) != 'Array'
 			throw ValueError('Expected an Array but got a ' Type(messages), A_ThisFunc, 'messages*')
+
+		if messages.Length+1 != Log.headers.Length
+			throw Error('Expected ' Log.headers.Length ' fields but got ' messages.Length, A_ThisFunc, 'messages*')
 
 		switch icon
 		{
