@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -87,6 +87,10 @@ class Log
 	{
 		xLoc := 500 + log.window.MarginX*2 + 15
 		opts := opts ?? 'x' A_ScreenWidth-xLoc ' NoActivate'
+		Log.lv.Opt('-Redraw')
+		loop Log.lv.GetCount('col')
+			Log.lv.ModifyCol(A_Index, 'AutoHDR')
+		Log.lv.Opt('+Redraw')
 		Log.window.Show(opts)
 	}
 	static Clear() => Log.lv.Delete()
