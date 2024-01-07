@@ -33,6 +33,14 @@ class Log
 				Log.lv.Opt('-Redraw')
 		}
 	}
+	static visible {
+		set {
+			if Value
+				Log.Show()
+			else
+				Log.Hide()
+		}
+	}
 
 	static __New() {
 		if VerCompare(A_OSVersion, '10.0.22621') = -1
