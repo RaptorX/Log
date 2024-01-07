@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
@@ -95,7 +95,9 @@ class Log
 				return
 		}
 		row := Log.lv.Add('Icon' icon, Log.lv.GetCount() + 1, messages*)
-		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
+		Log.lv.Modify(row, 'Vis')
+		loop Log.lv.GetCount('col')
+			Log.lv.ModifyCol(A_Index)
 
 		message := ''
 		for msg in messages
