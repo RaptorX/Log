@@ -1,10 +1,10 @@
-﻿#Requires Autohotkey v2.0+
+#Requires Autohotkey v2.0+
 
 #Include .\lib\Log.h.ahk
 
 class Log
 {
-	static MODE := DEBUG_ALL
+	static mode := DEBUG_ALL
 	static window := Gui('+AlwaysOnTop +ToolWindow', 'Log')
 	static lv := ''
 	static headers {
@@ -50,7 +50,7 @@ class Log
 	__New(icon?, messages*) => Log.Add(icon, messages*)
 
 	static Add(icon?, messages*) {
-		if Log.MODE = DEBUG_OFF
+		if Log.mode = DEBUG_OFF
 			return
 
 		icon := icon ?? DEBUG_ICON_INFO
@@ -69,16 +69,15 @@ class Log
 		switch icon
 		{
 		case DEBUG_ICON_INFO,DEBUG_ICON_PASS:
-			if Log.MODE & DEBUG_INFO = 0
+			if Log.mode & DEBUG_INFO = 0
 				return
 		case DEBUG_ICON_WARN:
-			if Log.MODE & DEBUG_WARNINGS = 0
+			if Log.mode & DEBUG_WARNINGS = 0
 				return
 		case DEBUG_ICON_FAIL:
-			if Log.MODE & DEBUG_ERRORS = 0
+			if Log.mode & DEBUG_ERRORS = 0
 				return
 		}
-
 		row := Log.lv.Add('Icon' icon, Log.lv.GetCount() + 1, messages*)
 		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
 
@@ -86,7 +85,7 @@ class Log
 		for msg in messages
 			message .= msg '`t'
 
-		OutputDebug Trim(message)
+		OutputDebug Trim(message) '`n'
 	}
 
 	static Show(opts?)
