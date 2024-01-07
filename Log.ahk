@@ -25,6 +25,14 @@ class Log
 				Log.lv.InsertCol(A_Index+1, '', header)
 		}
 	}
+	static update {
+		set {
+			if Value
+				Log.lv.Opt('+Redraw')
+			else
+				Log.lv.Opt('-Redraw')
+		}
+	}
 
 	static __New() {
 		if VerCompare(A_OSVersion, '10.0.22621') = -1
