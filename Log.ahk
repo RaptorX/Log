@@ -124,7 +124,9 @@ class Log
 			return MsgBox('No file selected', 'Error', 'IconX')
 
 		hFile := FileOpen(fPath, 'w-')
-
+		for header in Log.headers
+			hFile.Write(header '`t')
+		hFile.Write('`n')
 		hFile.Write(ListViewGetContent('', Log.lv))
 		hFile.Close()
 
