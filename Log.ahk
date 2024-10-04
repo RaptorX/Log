@@ -1,129 +1,210 @@
 ﻿#Requires Autohotkey v2.0+
 
-#Include .\lib\Log.h.ahk
+#Include .\inc\log.h.ahk
 
+/**
+ *
+ * @param {Number|MSG_INFO|MSG_WARN|MSG_FAIL|MSG_ERROR|MSG_DEBUG} MSG_TYPE type of message that will be logged
+ * @param {String} MESSAGE custom message that explains the failure
+ * @param {Number|String} DATE can be YYYYMMDDHHMMSS or yyyy-MM-dd HH:mm:ss
+ * @param {Number|String} WHAT defines what has failed
+ * @param {Number|String} LINE line number of the file where the failure occurred
+ * @param {Number|String} FILE file where the failure occurred
+ */
 class Log
 {
-	static MODE := DEBUG_ALL
-	static window := Gui('+AlwaysOnTop +ToolWindow', 'Log')
-	static lv := ''
-	static headers {
-		get {
-			hdrs := []
-			loop Log.lv.GetCount('col')
-				hdrs.Push(Log.lv.GetText(0, A_Index))
+	/** @type {DEBUG_OFF|DEBUG_INFO|DEBUG_WARNINGS|DEBUG_RESULTS|DEBUG_ERRORS|DEBUG_ALL} */
+	static MODE        := DEBUG_OFF
 
-			return hdrs
+	/** @type {DEBUG_OFF|DEBUG_WINDOW|DEBUG_SCREENSHOT} */
+	static OPTIONS     := DEBUG_OFF
+	static FILE        := 'logs\errors.log'
+	static IMGPATH     := 'logs\imgs'
+	static SCFOLDER    := A_MyDocuments '\..\Pictures\Screenshots'
+	static DATE_FORMAT := 'yyyy-MM-dd HH:mm:ss'
+	static DELIMITER   := '`t'
+
+	static window      := Gui('-MaximizeBox -MinimizeBox')
+	static lv          := Log.window.AddListView('w700 r20', ['Date','Type','Message','What','Line','File', 'Stack'])
+
+	static __New()
+	{
+		Log.window.OnEvent('Close', (*)=>(Log.lv.Opt('-Redraw'), Log.window.Hide()))
+		Log.window.SetFont('s10', 'consolas')
+
+		Log.lv.headers := ['Date','Type','Message','What','Line','File', 'Stack']
+		list := IL_Create(5)
+		Log.lv.icons := Map(
+			MSG_INFO , 282,
+			MSG_WARN , 80,
+			MSG_FAIL , 208,
+			MSG_ERROR, 85,
+			MSG_DEBUG, 77,
+		)
+		Log.lv.SetImageList(list)
+		for type, icon in Log.lv.icons
+			Log.lv.icons[type] := IL_Add(list, "C:\Windows\system32\imageres.dll", icon)
+		Log.lv.icons[MSG_PASS] := IL_Add(list, "C:\Windows\system32\shell32.dll", 301)
+
+		for header in Log.lv.headers
+		{
+			if header != 'Stack'
+				continue
+
+			stack_col := A_Index
+			break
 		}
 
-		set {
-			loop Log.lv.GetCount('col')
-				Log.lv.DeleteCol(1)
+		Log.lv.OnEvent('DoubleClick', (*)=>Log.ShowStack(ListViewGetContent('col' stack_col, Log.lv)))
+		Log.lv.Opt('-Redraw')
 
-			Value.InsertAt(1, 'id')
-			for header in Value
-				Log.lv.InsertCol(A_Index+1, '', header)
-		}
-	}
-
-	static __New() {
-		if VerCompare(A_OSVersion, '10.0.22621') = -1
-			icons := [297,132,237,278]
-		else
-			icons := [301,132,237,278]
-
-		Log.window.OnEvent('Close', (*)=> Log.window.Hide())
-
-		il := IL_Create(4)
-		for icon in icons
-			IL_Add(il, 'shell32.dll', icon)
-
-		Log.lv := Log.window.AddListView('vLogView xm w500 h600', ['id','Log'])
-		Log.lv.SetImageList(il)
-
-		xLoc := 75*2 + log.window.MarginX
-		Log.window.AddButton('vSave x+-' xLoc ' y+m w75', 'Save Logs').OnEvent('Click', (*) => Log.Save())
-		Log.window.AddButton('vClear x+m w75', 'Clear logs').OnEvent('Click', (*) => Log.Clear())
-
-	}
-
-	__New(icon?, messages*) => Log.Add(icon, messages*)
-
-	static Add(icon?, messages*) {
-		if Log.MODE = DEBUG_OFF
+		if FileExist(Log.FILE)
 			return
 
-		icon := icon ?? DEBUG_ICON_INFO
-		; icon must be one of the valid icons
-		if Type(icon) != 'Integer'
-		|| icon ~= '(' DEBUG_ICON_FAIL '|' DEBUG_ICON_INFO '|' DEBUG_ICON_PASS '|' DEBUG_ICON_WARN ')' = 0
-			throw ValueError('Expected an Icon Number but got a ' Type(icon), A_ThisFunc, 'icon')
+		DirCreate Log.IMGPATH
 
-		; message must be an array
-		if Type(messages) != 'Array'
-			throw ValueError('Expected an Array but got a ' Type(messages), A_ThisFunc, 'messages*')
+		line := ''
+		for header in Log.lv.headers
+			line .= header . Log.DELIMITER
+		line := RTrim(line, Log.DELIMITER)
 
-		if messages.Length+1 != Log.headers.Length
-			throw Error('Expected ' Log.headers.Length ' fields but got ' messages.Length, A_ThisFunc, 'messages*')
+		FileAppend line '`n', Log.FILE, 'utf-8'
+	}
 
-		switch icon
+	/**
+	 *
+	 * @param {MSG_INFO|MSG_WARN|MSG_FAIL|MSG_ERROR|MSG_DEBUG} MSG_TYPE type of message that will be logged
+	 * @param {String|Error}  MESSAGE custom message that explains the failure
+	 * @param {Number|String} DATE can be YYYYMMDDHHMMSS or yyyy-MM-dd HH:mm:ss
+	 * @param {Number|String} WHAT defines what has failed
+	 * @param {Number|String} LINE line number of the file where the failure occurred
+	 * @param {Number|String} FILE file where the failure occurred
+	 */
+	__New(MSG_TYPE, MESSAGE, DATE?, WHAT?, LINE?, FILE?, STACK?)
+	{
+		static template := '{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}'
+
+		if !(MSG_TYPE is Integer)
+			throw TypeError('Expected an integer but got: ' type(MSG_TYPE), A_ThisFunc, 'MSG_TYPE')
+		if !(MSG_TYPE ~= MSG_INFO '|' MSG_WARN '|' MSG_PASS '|' MSG_FAIL '|' MSG_ERROR '|' MSG_DEBUG)
+			throw ValueError('Invalid message type', A_ThisFunc, 'MSG_TYPE: ' MSG_TYPE)
+		if IsSet(DATE) && !(DATE is String)
+			throw TypeError('Expected a string but got: ' type(DATE), A_ThisFunc, 'DATE')
+		if IsSet(DATE) && !(DATE ~= '\d{14}')
+			throw ValueError('Invalid date format. Expected YYYYMMDDHHMMSS.',A_ThisFunc,'DATE: ' DATE)
+		if IsSet(WHAT) && !(WHAT is String)
+			throw TypeError('Expected a string but got: ' type(WHAT), A_ThisFunc, 'WHAT')
+		if IsSet(LINE) && !(LINE is Integer)
+			throw TypeError('Expected an integer but got: ' type(LINE), A_ThisFunc, 'LINE')
+		if IsSet(FILE) && !(FILE is String)
+			throw TypeError('Expected a string but got: ' type(FILE), A_ThisFunc, 'FILE')
+
+		if MESSAGE is Error
 		{
-		case DEBUG_ICON_INFO,DEBUG_ICON_PASS:
-			if Log.MODE & DEBUG_INFO = 0
-				return
-		case DEBUG_ICON_WARN:
-			if Log.MODE & DEBUG_WARNINGS = 0
-				return
-		case DEBUG_ICON_FAIL:
-			if Log.MODE & DEBUG_ERRORS = 0
-				return
+			WHAT    := MESSAGE.What
+			LINE    := MESSAGE.Line
+			FILE    := MESSAGE.File
+			STACK   := RegExReplace(MESSAGE.Stack, '\R', '¶')
+			MESSAGE := MESSAGE.Message
+		}
+		else if !(MESSAGE is String)
+			throw TypeError('Expected a string but got: ' Type(MESSAGE), A_ThisFunc, 'MESSAGE')
+
+		if Log.MODE = DEBUG_OFF
+		|| Log.MODE & MSG_TYPE = false
+			return
+
+		FORMATTED_DATE := DATE ?? FormatTime(A_Now, Log.DATE_FORMAT)
+		FORMATTED_DATE := FORMATTED_DATE ~= '\d{14}' ? FormatTime(FORMATTED_DATE, Log.DATE_FORMAT) : FORMATTED_DATE
+
+		switch MSG_TYPE
+		{
+		case MSG_INFO:  MSG_TYPE_STR := 'INFO'
+		case MSG_WARN:  MSG_TYPE_STR := 'WARN'
+		case MSG_PASS:  MSG_TYPE_STR := 'PASS'
+		case MSG_FAIL:  MSG_TYPE_STR := 'FAIL'
+		case MSG_ERROR: MSG_TYPE_STR := 'ERROR'
+		case MSG_DEBUG: MSG_TYPE_STR := 'DEBUG'
+		default:
+			MSG_TYPE_STR := 'INFO'
 		}
 
-		row := Log.lv.Add('Icon' icon, Log.lv.GetCount() + 1, messages*)
-		Log.lv.Modify(row, 'Vis'), Log.lv.ModifyCol(1)
+		if Log.MODE & MSG_DEBUG
+			OutputDebug MESSAGE '`n'
 
-		message := ''
-		for msg in messages
-			message .= msg '`t'
 
-		OutputDebug Trim(message)
+		line := Format(
+			template,
+			Log.DELIMITER,
+			FORMATTED_DATE,
+			MSG_TYPE_STR,
+			MESSAGE,
+			WHAT ?? '',
+			LINE ?? '',
+			FILE ?? '',
+			STACK ?? ''
+		)
+		Log.lv.Add('Vis Icon' Log.lv.icons[MSG_TYPE], StrSplit(line, Log.DELIMITER)*)
+
+		if Log.OPTIONS & DEBUG_WINDOW
+			Log.Show()
+
+		if MSG_TYPE = MSG_ERROR
+		&& Log.OPTIONS & DEBUG_SCREENSHOT
+		{
+			indx := RegRead('HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer', 'ScreenshotIndex', 1)
+			screenshot := Format( Log.SCFOLDER '\*({}).png', indx)
+
+			Sleep 500
+			Send '#{PrintScreen}'
+			while !FileExist(screenshot)
+				Sleep 10
+
+			FileMove screenshot, Log.IMGPATH '\error-' indx '.png'
+		}
+
+		FileAppend line '`n', Log.FILE, 'utf-8'
 	}
 
 	static Show(opts?)
 	{
-		xLoc := 500 + log.window.MarginX*2 + 15
-		opts := opts ?? 'x' A_ScreenWidth-xLoc ' NoActivate'
-		Log.lv.Opt('-Redraw')
-		loop Log.lv.GetCount('col')
-			Log.lv.ModifyCol(A_Index, 'AutoHDR')
+		for header in Log.lv.headers
+		{
+			switch header
+			{
+			case 'Message':
+				options := 150
+			case 'Stack':
+				options := 0
+			default:
+				options := 'AutoHdr'
+			}
+			Log.lv.ModifyCol(A_Index, options)
+		}
 		Log.lv.Opt('+Redraw')
-		Log.window.Show(opts)
-	}
-	static Clear() => Log.lv.Delete()
-	static Hide() => Log.window.Hide()
-
-	static Save(fPath?) {
-		if !fPath := fPath ?? FileSelect('S24')
-			return MsgBox('No file selected', 'Error', 'IconX')
-
-		hFile := FileOpen(fPath, 'w-')
-
-		hFile.Write(ListViewGetContent('', Log.lv))
-		hFile.Close()
-
-		return fPath
+		Log.window.Show('hide')
+		Log.window.GetPos(,,, &h)
+		Log.window.Show(opts??'x' A_ScreenWidth - (700+log.window.MarginX*3) ' y' (A_ScreenHeight/2) - (h/2))
 	}
 
-	static Test(visible := true) {
-		if Log.headers.Length != 2
-			Log.headers := ['Log']
-		Log.Clear()
-		Log.Add(DEBUG_ICON_INFO, 'Info')
-		Log.Add(DEBUG_ICON_PASS, 'Pass')
-		Log.Add(DEBUG_ICON_WARN, 'Warning')
-		Log.Add(DEBUG_ICON_FAIL, 'Failure')
+	static ShowStack(str)
+	{
+		lines := []
+		for line in StrSplit(str, '¶')
+			lines.InsertAt(1, line)
 
-		if visible
-			Log.Show()
+		fixed := ''
+		for line in lines
+		{
+			if !line
+				continue
+			fixed .= Trim(line) '`n'
+		}
+
+		stack_window := Gui()
+		stack_window.SetFont('s10', 'consolas')
+		stack_window.AddEdit('w700 r20', fixed)
+		stack_window.AddButton('Default Hidden').Focus()
+		stack_window.Show('AutoSize')
 	}
 }
