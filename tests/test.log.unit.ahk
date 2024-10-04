@@ -9,14 +9,14 @@ Yunit.Use(YunitWindow).Test(LOG_TESTS)
 
 class LOG_TESTS
 {
-	static CreateLogs()
+	static CreateLogs(asError := false)
 	{
-		Log(MSG_INFO, 'this is an info message')
-		Log(MSG_WARN, 'this is a warning message')
-		Log(MSG_PASS, 'this is a passing message')
-		Log(MSG_FAIL, 'this is a failure message')
-		Log(MSG_ERROR, 'this is an error message')
-		Log(MSG_DEBUG, 'this is a debug message')
+		Log(MSG_INFO,  asError ? Error('this is an info message')    : 'this is an info message')
+		Log(MSG_WARN,  asError ? Error('this is a warning message')  : 'this is a warning message')
+		Log(MSG_PASS,  asError ? Error('this is a passing message')  : 'this is a passing message')
+		Log(MSG_FAIL,  asError ? Error('this is a failure message')  : 'this is a failure message')
+		Log(MSG_ERROR, asError ? Error('this is an error message')   : 'this is an error message')
+		Log(MSG_DEBUG, asError ? Error('this is a debug message')    : 'this is a debug message')
 	}
 
 	class T1•MODES
@@ -24,7 +24,7 @@ class LOG_TESTS
 		begin() => Yunit.Assert(FileExist(Log.FILE), 'Log file not found')
 		end(){
 			line := ''
-			for header in ['Date', 'Type', 'Message', 'What', 'Line', 'File']
+			for header in Log.lv.headers
 				line .= header . Log.DELIMITER
 			line := RTrim(line, Log.DELIMITER)
 
@@ -103,12 +103,13 @@ class LOG_TESTS
 		{
 			Log.MODE    := DEBUG_ALL 
 			Log.OPTIONS := DEBUG_WINDOW
-			Log_Tests.CreateLogs()
+			Log_Tests.CreateLogs(true)
 
 			loop read Log.FILE
 				cnt := A_Index
 
 			Yunit.Assert(cnt = 7, 'Invalid number of lines: ' cnt '. Expected 7' )
+			Log.OPTIONS := DEBUG_OFF
 		}
 	}
 
@@ -117,7 +118,7 @@ class LOG_TESTS
 		begin() => Yunit.Assert(FileExist(Log.FILE), 'Log file not found')
 		end(){
 			line := ''
-			for header in ['Date', 'Type', 'Message', 'What', 'Line', 'File']
+			for header in Log.lv.headers
 				line .= header . Log.DELIMITER
 			line := RTrim(line, Log.DELIMITER)
 
@@ -216,10 +217,7 @@ class LOG_TESTS
 
 			try Yunit.Assert(Log(MSG_INFO, 'this is a test', '2024-08-08'), 'Expected ValueError')
 			catch ValueError as e
-				Yunit.Assert(
-					e.message = 'Invalid date format. Expected YYYYMMDDHHMMSS.',
-					'Invalid error message'
-				)
+				Yunit.Assert(e.message = 'Invalid date format. Expected YYYYMMDDHHMMSS.','Invalid error message')
 
 			try Yunit.Assert(Log(MSG_INFO, 'this is a test', A_Now, {}), 'Expected TypeError')
 			catch TypeError as e
