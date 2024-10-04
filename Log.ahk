@@ -31,7 +31,7 @@ class Log
 	{
 		Log.window.OnEvent('Close', (*)=>(Log.lv.Opt('-Redraw'), Log.window.Hide()))
 		Log.window.SetFont('s10', 'consolas')
-		
+
 		Log.lv.headers := ['Date','Type','Message','What','Line','File', 'Stack']
 		list := IL_Create(5)
 		Log.lv.icons := Map(
@@ -200,7 +200,7 @@ class Log
 				continue
 			fixed .= Trim(line) '`n'
 		}
-		
+
 		stack_window := Gui()
 		stack_window.SetFont('s10', 'consolas')
 		stack_window.AddEdit('w700 r20', fixed)
