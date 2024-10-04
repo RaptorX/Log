@@ -55,7 +55,7 @@ class Log
 			break
 		}
 
-		Log.lv.OnEvent('DoubleClick', (*)=>Log.ShowStack(ListViewGetContent('col' stack_col, Log.lv)))
+		Log.lv.OnEvent('DoubleClick', (*)=>Log.ShowStack(var := ListViewGetContent('Focused col' stack_col, Log.lv)))
 		Log.lv.Opt('-Redraw')
 
 		if FileExist(Log.FILE)
@@ -181,10 +181,15 @@ class Log
 			}
 			Log.lv.ModifyCol(A_Index, options)
 		}
-		Log.lv.Opt('+Redraw')
-		Log.window.Show('hide')
 		Log.window.GetPos(,,, &h)
+		if !h
+		{
+			Log.window.Show('hide')
+			Log.window.GetPos(,,, &h)
+		}
+
 		Log.window.Show(opts??'x' A_ScreenWidth - (700+log.window.MarginX*3) ' y' (A_ScreenHeight/2) - (h/2))
+		Log.lv.Opt('+Redraw')
 	}
 
 	static ShowStack(str)
@@ -196,14 +201,14 @@ class Log
 		fixed := ''
 		for line in lines
 		{
-			if !line
+			if !line := Trim(line, '`s`t`n`r')
 				continue
 			fixed .= Trim(line) '`n'
 		}
 
 		stack_window := Gui()
 		stack_window.SetFont('s10', 'consolas')
-		stack_window.AddEdit('w700 r20', fixed)
+		stack_window.AddEdit('w700 r20 -Wrap HScroll', fixed)
 		stack_window.AddButton('Default Hidden').Focus()
 		stack_window.Show('AutoSize')
 	}
