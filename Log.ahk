@@ -1,4 +1,4 @@
-#Requires Autohotkey v2.0+
+﻿#Requires Autohotkey v2.0+
 
 #Include .\inc\log.h.ahk
 
@@ -186,18 +186,25 @@ class Log
 		Log.window.GetPos(,,, &h)
 		Log.window.Show(opts??'x' A_ScreenWidth - (700+log.window.MarginX*3) ' y' (A_ScreenHeight/2) - (h/2))
 	}
-	}
 
-	static Test(visible := true) {
-		if Log.headers.Length != 2
-			Log.headers := ['Log']
-		Log.Clear()
-		Log.Add(DEBUG_ICON_INFO, 'Info')
-		Log.Add(DEBUG_ICON_PASS, 'Pass')
-		Log.Add(DEBUG_ICON_WARN, 'Warning')
-		Log.Add(DEBUG_ICON_FAIL, 'Failure')
+	static ShowStack(str)
+	{
+		lines := []
+		for line in StrSplit(str, '¶')
+			lines.InsertAt(1, line)
 
-		if visible
-			Log.Show()
+		fixed := ''
+		for line in lines
+		{
+			if !line
+				continue
+			fixed .= Trim(line) '`n'
+		}
+		
+		stack_window := Gui()
+		stack_window.SetFont('s10', 'consolas')
+		stack_window.AddEdit('w700 r20', fixed)
+		stack_window.AddButton('Default Hidden').Focus()
+		stack_window.Show('AutoSize')
 	}
 }
