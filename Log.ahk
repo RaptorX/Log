@@ -168,27 +168,24 @@ class Log
 
 	static Show(opts?)
 	{
-		xLoc := 500 + log.window.MarginX*2 + 15
-		opts := opts ?? 'x' A_ScreenWidth-xLoc ' NoActivate'
-		Log.lv.Opt('-Redraw')
-		loop Log.lv.GetCount('col')
-			Log.lv.ModifyCol(A_Index, 'AutoHDR')
+		for header in Log.lv.headers
+		{
+			switch header
+			{
+			case 'Message':
+				options := 150
+			case 'Stack':
+				options := 0
+			default:
+				options := 'AutoHdr'
+			}
+			Log.lv.ModifyCol(A_Index, options)
+		}
 		Log.lv.Opt('+Redraw')
-		Log.window.Show(opts)
+		Log.window.Show('hide')
+		Log.window.GetPos(,,, &h)
+		Log.window.Show(opts??'x' A_ScreenWidth - (700+log.window.MarginX*3) ' y' (A_ScreenHeight/2) - (h/2))
 	}
-	static Clear() => Log.lv.Delete()
-	static Hide() => Log.window.Hide()
-
-	static Save(fPath?) {
-		if !fPath := fPath ?? FileSelect('S24')
-			return MsgBox('No file selected', 'Error', 'IconX')
-
-		hFile := FileOpen(fPath, 'w-')
-
-		hFile.Write(ListViewGetContent('', Log.lv))
-		hFile.Close()
-
-		return fPath
 	}
 
 	static Test(visible := true) {
