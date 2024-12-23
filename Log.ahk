@@ -1,4 +1,4 @@
-﻿#Requires Autohotkey v2.0+
+#Requires Autohotkey v2.0+
 
 #Include .\inc\log.h.ahk
 
@@ -26,6 +26,7 @@ class Log
 
 	static window      := Gui('-MaximizeBox -MinimizeBox')
 	static lv          := Log.window.AddListView('w700 r20', ['Date','Type','Message','What','Line','File', 'Stack'])
+	static hFile       := ''
 
 	static __New()
 	{
@@ -83,6 +84,11 @@ class Log
 	__New(MSG_TYPE, MESSAGE, DATE?, WHAT?, LINE?, FILE?, STACK?)
 	{
 		static template := '{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}'
+		
+		if !Log.hFile
+			Log.hFile := FileOpen(Log.FILE, 'w-', 'utf-8')
+		
+		Log.lv.Opt('-Redraw')
 
 		if !(MSG_TYPE is Integer)
 			throw TypeError('Expected an integer but got: ' type(MSG_TYPE), A_ThisFunc, 'MSG_TYPE')
@@ -163,7 +169,10 @@ class Log
 			FileMove screenshot, Log.IMGPATH '\error-' indx '.png'
 		}
 
-		FileAppend line '`n', Log.FILE, 'utf-8'
+		Log.hFile.Write(line '`n')
+
+		; Sleep 10
+		Log.lv.Opt('+Redraw')
 	}
 
 	static Show(opts?)
