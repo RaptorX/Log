@@ -59,7 +59,7 @@ class Log
 		Log.lv.Opt('-Redraw')
 
 		if FileExist(Log.FILE)
-			return
+			return FileDelete(Log.FILE)
 
 		DirCreate Log.IMGPATH
 
