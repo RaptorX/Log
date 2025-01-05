@@ -166,7 +166,7 @@ class Log
 		}
 
 		while !IsSet(hFile)
-			try hFile := FileOpen(Log.FILE, 'w', 'utf-8')
+			try hFile := FileOpen(Log.FILE, 'a', 'utf-8')
 
 		hFile.Write(line '`n')
 		hFile.Close()
