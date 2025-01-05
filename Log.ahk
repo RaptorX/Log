@@ -18,7 +18,29 @@ class Log
 
 	/** @type {DEBUG_OFF|DEBUG_WINDOW|DEBUG_SCREENSHOT} */
 	static OPTIONS     := DEBUG_OFF
-	static FILE        := 'logs\errors.log'
+	static FILE 
+	{
+		get {
+			try return Log._file
+			catch
+				return 'logs\errors.log'
+		}
+		set {
+			SplitPath value,, &dir
+			if dir
+				DirCreate dir
+			if FileExist(value)
+				FileDelete value
+			
+			for header in Log.lv.headers
+				line .= header . Log.DELIMITER
+			line := RTrim(line, Log.DELIMITER)
+			FileAppend line '`n', value, 'utf-8'
+			Log.DefineProp('_file', {value: value})
+
+		}
+	}
+
 	static IMGPATH     := 'logs\imgs'
 	static SCFOLDER    := A_MyDocuments '\..\Pictures\Screenshots'
 	static DATE_FORMAT := 'yyyy-MM-dd HH:mm:ss'
@@ -59,7 +81,7 @@ class Log
 		Log.lv.Opt('-Redraw')
 
 		if FileExist(Log.FILE)
-			return FileDelete(Log.FILE)
+			FileDelete(Log.FILE)
 
 		DirCreate Log.IMGPATH
 
