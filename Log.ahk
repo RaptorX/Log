@@ -26,7 +26,6 @@ class Log
 
 	static window      := Gui('-MaximizeBox -MinimizeBox')
 	static lv          := Log.window.AddListView('w700 r20', ['Date','Type','Message','What','Line','File', 'Stack'])
-	static hFile       := ''
 
 	static __New()
 	{
@@ -84,10 +83,7 @@ class Log
 	__New(MSG_TYPE, MESSAGE, DATE?, WHAT?, LINE?, FILE?, STACK?)
 	{
 		static template := '{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}'
-		
-		if !Log.hFile
-			Log.hFile := FileOpen(Log.FILE, 'w-', 'utf-8')
-		
+
 		Log.lv.Opt('-Redraw')
 
 		if !(MSG_TYPE is Integer)
@@ -169,7 +165,11 @@ class Log
 			FileMove screenshot, Log.IMGPATH '\error-' indx '.png'
 		}
 
-		Log.hFile.Write(line '`n')
+		while !IsSet(hFile)
+			try hFile := FileOpen(Log.FILE, 'w', 'utf-8')
+
+		hFile.Write(line '`n')
+		hFile.Close()
 
 		; Sleep 10
 		Log.lv.Opt('+Redraw')
