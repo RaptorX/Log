@@ -30,7 +30,7 @@ class Log
 			if dir
 				DirCreate dir
 			if FileExist(value)
-				FileDelete value
+				try FileDelete value
 			
 			for header in Log.lv.headers
 				line .= header . Log.DELIMITER
@@ -81,7 +81,7 @@ class Log
 		Log.lv.Opt('-Redraw')
 
 		if FileExist(Log.FILE)
-			FileDelete(Log.FILE)
+			try FileDelete(Log.FILE)
 
 		DirCreate Log.IMGPATH
 
