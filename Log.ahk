@@ -107,7 +107,7 @@ class Log
 			STACK   := RegExReplace(MESSAGE.Stack, '\R', '¶')
 			MESSAGE := MESSAGE.Message
 		}
-		else if !(MESSAGE is String)
+		else if !(MESSAGE is String or MESSAGE is Number)
 			throw TypeError('Expected a string but got: ' Type(MESSAGE), A_ThisFunc, 'MESSAGE')
 
 		if Log.MODE = DEBUG_OFF
